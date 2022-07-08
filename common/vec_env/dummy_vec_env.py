@@ -1,3 +1,4 @@
+from pydoc import ModuleScanner
 import numpy as np
 from .vec_env import VecEnv
 from .util import copy_obs_dict, dict_to_obs, obs_space_info
@@ -27,8 +28,14 @@ class DummyVecEnv(VecEnv):
         self.buf_infos = [{} for _ in range(self.num_envs)]
         self.actions = None
         self.spec = self.envs[0].spec
+    
+    def init_models(self, models):
+        for env in self.envs:
+            for i, model in enumerate(models):
+                j = 'm' + str(i + 1)
+                env.models[j] = model
 
-    def step_async(self, actions):
+    def step_async(self, actions, model_id):
         listify = True
         try:
             if len(actions) == self.num_envs:
@@ -42,22 +49,22 @@ class DummyVecEnv(VecEnv):
             assert self.num_envs == 1, "actions {} is either not a list or has a wrong size - cannot match to {} environments".format(actions, self.num_envs)
             self.actions = [actions]
 
-    def step_wait(self):
+    def step_wait(self, model_id):
         for e in range(self.num_envs):
             action = self.actions[e]
             # if isinstance(self.envs[e].action_space, spaces.Discrete):
             #    action = int(action)
 
-            obs, self.buf_rews[e], self.buf_dones[e], self.buf_infos[e] = self.envs[e].step(action)
+            obs, self.buf_rews[e], self.buf_dones[e], self.buf_infos[e] = self.envs[e].step(action, model_id)
             if self.buf_dones[e]:
-                obs = self.envs[e].reset()
+                obs = self.envs[e].reset(model_id)
             self._save_obs(e, obs)
         return (self._obs_from_buf(), np.copy(self.buf_rews), np.copy(self.buf_dones),
                 self.buf_infos.copy())
 
-    def reset(self):
+    def reset(self, model_id):
         for e in range(self.num_envs):
-            obs = self.envs[e].reset()
+            obs = self.envs[e].reset(model_id)
             self._save_obs(e, obs)
         return self._obs_from_buf()
 

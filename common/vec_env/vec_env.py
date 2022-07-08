@@ -46,7 +46,7 @@ class VecEnv(ABC):
         self.action_space = action_space
 
     @abstractmethod
-    def reset(self):
+    def reset(self, model_id):
         """
         Reset all the environments and return an array of
         observations, or a dict of observation arrays.
@@ -58,7 +58,7 @@ class VecEnv(ABC):
         pass
 
     @abstractmethod
-    def step_async(self, actions):
+    def step_async(self, actions, model_id):
         """
         Tell all the environments to start taking a step
         with the given actions.
@@ -70,7 +70,7 @@ class VecEnv(ABC):
         pass
 
     @abstractmethod
-    def step_wait(self):
+    def step_wait(self, model_id):
         """
         Wait for the step taken with step_async().
 
@@ -98,14 +98,14 @@ class VecEnv(ABC):
         self.close_extras()
         self.closed = True
 
-    def step(self, actions):
+    def step(self, actions, model_id):
         """
         Step the environments synchronously.
 
         This is available for backwards compatibility.
         """
-        self.step_async(actions)
-        return self.step_wait()
+        self.step_async(actions, model_id)
+        return self.step_wait(model_id)
 
     def render(self, mode='human'):
         imgs = self.get_images()

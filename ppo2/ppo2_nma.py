@@ -118,7 +118,9 @@ def learn(
         )
         models.append(model)
         j = 'm' + str(i + 1)
-        env.models[j] = model
+        #print(type(env.env))
+        #env.models[j] = model
+        env.init_models(models)
 
         # Instantiate the runner object
         runner = Runner(
@@ -126,7 +128,7 @@ def learn(
             tb_logger=tb_logger, after_epoch_cb=after_epoch_cb,
             schedule_gamma=schedule_gamma,
             schedule_gamma_after=schedule_gamma_after,
-            schedule_gamma_value=schedule_gamma_value, model_id=j
+            schedule_gamma_value=schedule_gamma_value, models=models, model_id=j
         )
         runners.append(runner)
 
@@ -250,7 +252,6 @@ def get_mblossvals(
             for start in range(0, nbatch, nbatch_train):
                 end = start + nbatch_train
                 mbinds = inds[start:end]
-                print(start, end, mbinds)
                 slices = (
                     tf.constant(arr[mbinds])
                     for arr in (obs, returns, masks, actions, values, neglogpacs)

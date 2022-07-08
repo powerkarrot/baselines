@@ -11,7 +11,7 @@ class Runner(AbstractEnvRunner):
     run():
     - Make a mini batch
     """
-    def __init__(self, *, env, model, nsteps, gamma, lam, tb_logger, after_epoch_cb, schedule_gamma, schedule_gamma_after, schedule_gamma_value, model_id=None):
+    def __init__(self, *, env, model, nsteps, gamma, lam, tb_logger, after_epoch_cb, schedule_gamma, schedule_gamma_after, schedule_gamma_value, models, model_id=None):
         super().__init__(env=env, model=model, nsteps=nsteps)
         self.model_id = model_id
         # Lambda used in GAE (General Advantage Estimation)
@@ -23,6 +23,7 @@ class Runner(AbstractEnvRunner):
         self.schedule_gamma_value = schedule_gamma_value
         self.tb_logger = tb_logger
         self.after_epoch_cb = after_epoch_cb
+        #self.models = models
 
     def run(self, n_episode):
         if self.schedule_gamma and n_episode >= self.schedule_gamma_after:
@@ -52,19 +53,19 @@ class Runner(AbstractEnvRunner):
 
             # Take actions in env and look the results
             # Infos contains a ton of useful informations
-            self.obs[:], rewards, self.dones, infos = self.env.step(actions, model_id=self.model_id)
+            self.obs[:], rewards, self.dones, infos = self.env.step(actions, self.model_id)
             for info in infos:
                 maybeepinfo = info.get('episode')
                 if maybeepinfo: epinfos.append(maybeepinfo)
             mb_rewards.append(rewards)
 
-        if self.tb_logger:
-            self.tb_logger.log_summary(self.env, mb_rewards, n_episode)
-            self.after_epoch_cb(n_episode)
+        #if self.tb_logger:
+        #    self.tb_logger.log_summary(self.env, mb_rewards, n_episode)
+        #    self.after_epoch_cb(n_episode)
             
         #https://stackoverflow.com/a/5409395
         flatten = lambda *n: (e for a in n for e in (flatten(*a) if isinstance(a, (tuple, list)) else (a,)))
-        mb_dones = list(flatten(mb_dones))
+        #mb_dones = list(flatten(mb_dones))
 
         #batch of steps to batch of rollouts
         mb_obs = np.asarray(mb_obs, dtype=self.obs.dtype)
@@ -89,8 +90,8 @@ class Runner(AbstractEnvRunner):
                 nextvalues = mb_values[t+1]
             delta = mb_rewards[t] + self.gamma * nextvalues[0] * nextnonterminal - mb_values[t][0]
             mb_advs[t] = lastgaelam = delta + self.gamma * self.lam * nextnonterminal * lastgaelam
-            
-        mb_returns = mb_advs.reshape(-1, 1) + mb_values
+
+        mb_returns = mb_advs.reshape(-1, mb_values.shape[1]) + mb_values
         return (*map(sf01, (mb_obs, mb_returns, mb_dones.reshape(-1, 1), mb_actions, mb_values, mb_neglogpacs)),
             mb_states, epinfos)
 
