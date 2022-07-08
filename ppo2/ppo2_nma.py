@@ -87,8 +87,6 @@ def learn(
 
     # Get the nb of env
     nenvs = env.num_envs
-    print(type(env))
-    print(nenvs)
 
     # Get state_space and action_space
     ob_space = env.observation_space
@@ -250,7 +248,6 @@ def get_mblossvals(
             for start in range(0, nbatch, nbatch_train):
                 end = start + nbatch_train
                 mbinds = inds[start:end]
-                print(start, end, mbinds)
                 slices = (
                     tf.constant(arr[mbinds])
                     for arr in (obs, returns, masks, actions, values, neglogpacs)
