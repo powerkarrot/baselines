@@ -114,6 +114,17 @@ def learn(
             ac_space=ac_space, policy_network=network, ent_coef=ent_coef,
             vf_coef=vf_coef, max_grad_norm=max_grad_norm
         )
+
+        if load_path is not None:
+            new_model = model.load(load_path)
+            new_model.step = model.step
+            new_model.value = model.value
+            new_model.train = model.train
+            new_model.save = model.save
+            new_model.load = model.load
+
+            model = new_model
+
         models.append(model)
         j = 'm' + str(i + 1)
         env.models[j] = model
