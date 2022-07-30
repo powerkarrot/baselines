@@ -45,10 +45,7 @@ class Runner(AbstractEnvRunner):
             mb_actions.append(actions)
             mb_values.append(values._numpy())
             mb_neglogpacs.append(neglogpacs._numpy())
-            #mb_dones = np.append(mb_dones, self.dones,axis=None)
             mb_dones.append(self.dones)
-
-
 
             # Take actions in env and look the results
             # Infos contains a ton of useful informations
