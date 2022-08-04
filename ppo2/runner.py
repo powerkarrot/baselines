@@ -58,11 +58,6 @@ class Runner(AbstractEnvRunner):
             self.tb_logger.log_summary(self.env, mb_rewards, n_episode)
             self.after_epoch_cb(n_episode)
 
-        if self.env.num_envs > 1:
-            #https://stackoverflow.com/a/5409395
-            flatten = lambda *n: (e for a in n for e in (flatten(*a) if isinstance(a, (tuple, list)) else (a,)))
-            mb_dones = list(flatten(mb_dones))
-
         #batch of steps to batch of rollouts
         mb_obs = np.asarray(mb_obs, dtype=self.obs.dtype)
         mb_rewards = np.asarray(mb_rewards, dtype=np.float32)
