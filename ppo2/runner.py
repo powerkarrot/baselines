@@ -30,7 +30,6 @@ class Runner(AbstractEnvRunner):
 
         # Here, we init the lists that will contain the mb of experiences
         mb_obs, mb_rewards, mb_actions, mb_values, mb_dones, mb_neglogpacs = [],[],[],[],[],[]
-        #mb_dones = np.asarray(mb_dones, dtype=np.bool)
         mb_states = self.states
         epinfos = []
         self.obs[:] = self.env.reset(model_id=self.model_id)  # TODO instance01
@@ -58,10 +57,11 @@ class Runner(AbstractEnvRunner):
         if self.tb_logger:
             self.tb_logger.log_summary(self.env, mb_rewards, n_episode)
             self.after_epoch_cb(n_episode)
-            
-        #https://stackoverflow.com/a/5409395
-        flatten = lambda *n: (e for a in n for e in (flatten(*a) if isinstance(a, (tuple, list)) else (a,)))
-        mb_dones = list(flatten(mb_dones))
+
+        if self.env.num_envs > 1:
+            #https://stackoverflow.com/a/5409395
+            flatten = lambda *n: (e for a in n for e in (flatten(*a) if isinstance(a, (tuple, list)) else (a,)))
+            mb_dones = list(flatten(mb_dones))
 
         #batch of steps to batch of rollouts
         mb_obs = np.asarray(mb_obs, dtype=self.obs.dtype)
