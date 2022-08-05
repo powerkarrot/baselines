@@ -126,7 +126,7 @@ def learn(
             model = new_model
 
         models.append(model)
-        j = 'm' + str(i + 1)
+        j = 'm' + str(i)
         env.models[j] = model
 
         # Instantiate the runner object
