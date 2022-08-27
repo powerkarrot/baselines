@@ -50,6 +50,14 @@ class Model(tf.Module):
 
         return pg_loss, vf_loss, entropy, approxkl, clipfrac
 
+    def save_chk(self, fname, model):
+        checkpoint = tf.train.Checkpoint(model=model)
+        checkpoint.write(fname)
+
+    def load_chk(self, fname, model):
+        new_checkpoint = tf.train.Checkpoint(model=model)
+        new_checkpoint.restore(fname) 
+
     def save(self, fname):
         self.trainable_variables_bak = self.train_model.trainable_variables
         self.initial_state_bak = self.train_model.initial_state

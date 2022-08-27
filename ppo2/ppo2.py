@@ -112,18 +112,24 @@ def learn(
     model = model_fn(ac_space=ac_space, policy_network=network, ent_coef=ent_coef, vf_coef=vf_coef,
                      max_grad_norm=max_grad_norm)
 
+
     if load_path is not None:
-        new_model = model.load(load_path)
-        new_model.step = model.step
-        new_model.value = model.value
-        new_model.train = model.train
-        new_model.save = model.save
-        new_model.load = model.load
+        # new_model = model.load(load_path)
+        # new_model.step = model.step
+        # new_model.value = model.value
+        # new_model.train = model.train
+        # new_model.save = model.save
+        # new_model.load = model.load
+        # new_model.loss_names = model.loss_names
+
         # load_path = osp.expanduser(load_path)
         # ckpt = tf.train.Checkpoint(model=model)
         # manager = tf.train.CheckpointManager(ckpt, load_path, max_to_keep=None)
         # ckpt.restore(manager.latest_checkpoint)
-        model = new_model
+        
+        # model = new_model
+
+        model.load_chk(load_path, model)
 
     env.model = model
 
