@@ -116,14 +116,15 @@ def learn(
         )
 
         if load_path is not None:
-            new_model = model.load(load_path)
-            new_model.step = model.step
-            new_model.value = model.value
-            new_model.train = model.train
-            new_model.save = model.save
-            new_model.load = model.load
+            # new_model = model.load(load_path)
+            # new_model.step = model.step
+            # new_model.value = model.value
+            # new_model.train = model.train
+            # new_model.save = model.save
+            # new_model.load = model.load
 
-            model = new_model
+            #model = new_model
+            model.load_chk(load_path, model)
 
         models.append(model)
         j = 'm' + str(i + 1)
